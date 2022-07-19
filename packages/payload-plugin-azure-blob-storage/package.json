@@ -1,5 +1,5 @@
 {
-  "name": "helm-parser",
+  "name": "payload-plugin-azure-blob-storage",
   "version": "0.1.0",
   "description": "",
   "main": "index.js",
@@ -24,10 +24,8 @@
   },
   "license": "ISC",
   "dependencies": {
-    "kubernetes-types": "^1.21.0-beta.1",
-    "shelljs": "^0.8.5",
-    "type-fest": "^2.12.2",
-    "yamljs": "^0.3.0"
+    "@azure/storage-blob": "^12.11.0",
+    "payload": "^1.0.4"
   },
   "devDependencies": {
     "@pika/pack": "^0.5.0",
