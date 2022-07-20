@@ -64,25 +64,10 @@ volumes:
 
 ```bash
 AZURE_STORAGE_CONNECTION_STRING=DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://localhost:10000/devstoreaccount1;QueueEndpoint=http://localhost:10001/devstoreaccount1;
-PAYLOAD_PUBLIC_AZURE_STORAGE_CONTAINER_NAME=az-media
+AZURE_STORAGE_CONTAINER_NAME=az-media
 AZURE_STORAGE_ALLOW_CONTAINER_CREATE=true
-PAYLOAD_PUBLIC_AZURE_STORAGE_ACCOUNT_BASEURL=http://localhost:10000/devstoreaccount1
+AZURE_STORAGE_ACCOUNT_BASEURL=http://localhost:10000/devstoreaccount1
 PAYLOAD_PUBLIC_SERVER_URL=http://localhost:5000
-```
-
-### Plugin config
-
-Create file `src/azure-blob-storage-options.ts`
-
-```typescript
-import { AzureStoragePluginOptionsType } from "payload-plugin-azure-blob-storage";
-
-export const azureStoragePluginOptions: AzureStoragePluginOptionsType = {
-  connectionString: process.env.AZURE_STORAGE_CONNECTION_STRING,
-  containerName: process.env.PAYLOAD_PUBLIC_AZURE_STORAGE_CONTAINER_NAME,
-  baseUrl: process.env.PAYLOAD_PUBLIC_AZURE_STORAGE_ACCOUNT_BASEURL,
-  allowContainerCreate: process.env.AZURE_STORAGE_ALLOW_CONTAINER_CREATE === "true",
-};
 ```
 
 ### Create Media collection
@@ -90,12 +75,10 @@ export const azureStoragePluginOptions: AzureStoragePluginOptionsType = {
 Create file: `src/collections/Media.ts`
 
 ```typescript
-import { FileSizes } from "payload/dist/uploads/types";
 import { CollectionConfig } from "payload/types";
 import { createUploadMediaHooks } from "payload-plugin-azure-blob-storage";
-import { azureStoragePluginOptions } from "../azure-blob-storage-options"; // path to your options file
 
-const hooks = createUploadMediaHooks(azureStoragePluginOptions);
+const hooks = createUploadMediaHooks();
 
 export const Media: CollectionConfig = {
   slug: "az-media",
@@ -112,16 +95,8 @@ export const Media: CollectionConfig = {
   },
   hooks,
   upload: {
-    adminThumbnail: (args) => {
-      const doc = args.doc as Record<string, FileSizes>;
-      const sizes: FileSizes = doc.sizes;
-      const squareCrop = sizes.square;
-      const { baseUrl, containerName } = azureStoragePluginOptions;
-      const url = `${baseUrl}/${containerName}/${squareCrop.filename}`;
-      return url;
-    },
     disableLocalStorage: true,
-    staticURL: "/az-media",
+    adminThumbnail: "square",
     imageSizes: [
       {
         height: 400,
@@ -130,8 +105,8 @@ export const Media: CollectionConfig = {
         name: "square",
       },
       {
-        height: 900,
-        width: 450,
+        width: 900,
+        height: 450,
         crop: "center",
         name: "sixteenByNineMedium",
       },
@@ -157,37 +132,22 @@ Update file: `payload.config.ts`
 ```ts
 import { buildConfig } from "payload/config";
 import path from "path";
-import Users from "./collections/Users";
 import { createAzureBlobStorageMediaPlugin } from "payload-plugin-azure-blob-storage";
-import { azureStoragePluginOptions } from "./azure-blob-storage-options";
 import { Media } from "./collections/Media";
 
 export default buildConfig({
-  serverURL: "http://localhost:3000",
-  admin: {
-    user: Users.slug,
-  },
-  collections: [Users, Media],
-  typescript: {
-    outputFile: path.resolve(__dirname, "payload-types.ts"),
-  },
-  localization: {
-    defaultLocale: "en",
-    locales: ["en", "da"],
-  },
-  plugins: [createAzureBlobStorageMediaPlugin(azureStoragePluginOptions)],
+  collections: [
+    // Rest of your collections
+    Media,
+  ],
+  plugins: [
+    createAzureBlobStorageMediaPlugin({
+      connectionString: process.env.AZURE_STORAGE_CONNECTION_STRING,
+      containerName: process.env.AZURE_STORAGE_CONTAINER_NAME,
+      baseUrl: process.env.AZURE_STORAGE_ACCOUNT_BASEURL,
+      allowContainerCreate: process.env.AZURE_STORAGE_ALLOW_CONTAINER_CREATE === "true",
+    }),
+  ],
+  // ... Rest of your config
 });
-```
-
-### Add middleware
-
-Add middleware for each collection that uses azure blob storage to redirect requests to the azure blob storage file location
-
-Update file: `src/server.ts`
-
-```ts
-import { Media } from "./collections/Media"; // path to your collection file
-import { azureStoragePluginOptions } from "./azure-blob-storage-options"; // path to your options file
-
-app.use(...createLocalMediaRedirectMiddleware(Media, azureStoragePluginOptions));
 ```
