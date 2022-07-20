@@ -38,80 +38,57 @@ jobs:
       - name: Build
         run: npm run build
         working-directory: ./packages/payload-plugin-azure-blob-storage
-#   publish:
-#     name: Publish package
-#     runs-on: ubuntu-latest
-#     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
-#     needs:
-#       - build
-#     steps:
-#       - name: Checkout repo
-#         uses: actions/checkout@v3
-#         with:
-#           fetch-depth: 0
+  publish:
+    name: Publish package
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
+    needs:
+      - build
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
-#       - name: Use Node
-#         uses: actions/setup-node@v1
-#         with:
-#           node-version: 16.x
+      - name: Use Node
+        uses: actions/setup-node@v1
+        with:
+          node-version: 16.x
 
-#       - name: Npm Install
-#         run: npm install
+      - name: Npm Install
+        run: npm install
 
-#       - name: Copy README
-#         run: cp ./README.md ./packages/payload-plugin-azure-blob-storage/README.md
+      - name: Copy README
+        run: cp ./README.md ./packages/payload-plugin-azure-blob-storage/README.md
 
-#       - name: Copy README
-#         run: cp ./README.md ./packages/create-helm-tests/README.md
+      - name: Version
+        run: |
+          VERSION=$(nbgv get-version -v NpmPackageVersion)
+          echo Version is ${VERSION}
+          lerna version ${VERSION} --no-push --no-git-tag-version --exact -y
+          git config --global user.email "build@payload-plugin-azure-blob-storage.com"
+          git config --global user.name "payload-plugin-azure-blob-storage build"
+          git commit -am "Temp version commit"
 
-#       - name: Version
-#         run: |
-#           VERSION=$(nbgv get-version -v NpmPackageVersion)
-#           echo Version is ${VERSION}
-#           lerna version ${VERSION} --no-push --no-git-tag-version --exact -y
-#           git config --global user.email "build@payload-plugin-azure-blob-storage.com"
-#           git config --global user.name "payload-plugin-azure-blob-storage build"
-#           git commit -am "Temp version commit"
+      - name: Build
+        run: npm run build
 
-#       - name: Build
-#         run: npm run build
+      - name: Lerna publish
+        if: github.ref == 'refs/heads/develop'
+        run: |
+          npm set //registry.npmjs.org/:_authToken $NPM_TOKEN
+          npm config set access public
+          npx lerna publish from-package --yes --contents pkg --dist-tag alpha
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-#       - name: Lerna publish
-#         if: github.ref == 'refs/heads/develop'
-#         run: |
-#           npm set //registry.npmjs.org/:_authToken $NPM_TOKEN
-#           npm config set access public
-#           npx lerna publish from-package --yes --contents pkg --dist-tag alpha
-#         env:
-#           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-#           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-#       - name: Lerna publish
-#         if: github.ref == 'refs/heads/main'
-#         run: |
-#           npm set //registry.npmjs.org/:_authToken $NPM_TOKEN
-#           npm config set access public
-#           npx lerna publish from-package --yes --contents pkg
-#         env:
-#           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-#           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-#   e2e:
-#     name: e2e tests
-#     runs-on: ubuntu-latest
-#     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
-#     needs:
-#       - publish
-#     steps:
-#       - name: Checkout repo
-#         uses: actions/checkout@v3
-
-#       - name: e2e test main
-#         if: github.ref == 'refs/heads/main'
-#         run: |
-#           npx create-helm-tests example1 --chart-path ./test/charts/my-chart && cd example1 && npm test -- --run
-
-#       - name: e2e test alpha
-#         if: github.ref == 'refs/heads/develop'
-#         run: |
-#           npx create-helm-tests@alpha example1 --chart-path ./test/charts/my-chart && cd example1 && npm test -- --run
+      - name: Lerna publish
+        if: github.ref == 'refs/heads/main'
+        run: |
+          npm set //registry.npmjs.org/:_authToken $NPM_TOKEN
+          npm config set access public
+          npx lerna publish from-package --yes --contents pkg
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
