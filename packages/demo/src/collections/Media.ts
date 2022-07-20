@@ -1,9 +1,9 @@
 import { FileSizes } from "payload/dist/uploads/types";
 import { CollectionConfig } from "payload/types";
 import { createUploadMediaHooks } from "payload-plugin-azure-blob-storage";
-import { azureBlobStorageMediaPluginOptions } from "../azure-blob-storage-options";
+import { azureStoragePluginOptions } from "../azure-blob-storage-options";
 
-const hooks = createUploadMediaHooks(azureBlobStorageMediaPluginOptions);
+const hooks = createUploadMediaHooks(azureStoragePluginOptions);
 
 export const Media: CollectionConfig = {
   slug: "az-media",
@@ -24,7 +24,7 @@ export const Media: CollectionConfig = {
       const doc = args.doc as Record<string, FileSizes>;
       const sizes: FileSizes = doc.sizes;
       const squareCrop = sizes.square;
-      const { baseUrl, containerName } = azureBlobStorageMediaPluginOptions;
+      const { baseUrl, containerName } = azureStoragePluginOptions;
       const url = `${baseUrl}/${containerName}/${squareCrop.filename}`;
       return url;
     },

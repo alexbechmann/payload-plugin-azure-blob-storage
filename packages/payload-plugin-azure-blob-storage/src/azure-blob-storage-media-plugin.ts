@@ -1,10 +1,10 @@
 import { Config } from "payload/config";
 import merge from "lodash/merge";
-import { AzureBlobStorageMediaPluginOptionsType } from "./azure-blob-storage-media-plugin-options";
+import { azureStoragePluginOptionsType } from "./azure-blob-storage-media-plugin-options";
 // import { createBlobMediaCollection } from "./create-blob-media-collection";
 import { ensureBlobContainerExists } from "./ensure-blob-container-exists";
 
-export const createAzureBlobStorageMediaPlugin = (options: AzureBlobStorageMediaPluginOptionsType) => {
+export const createAzureBlobStorageMediaPlugin = (options: azureStoragePluginOptionsType) => {
   return (config: Config): Config => {
     // const blobMediaCollection = createBlobMediaCollection(options);
     if (options.allowContainerCreate) {

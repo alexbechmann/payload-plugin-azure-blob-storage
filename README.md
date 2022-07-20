@@ -1,32 +1,14 @@
-# Helm Parser
+# payload-plugin-azure-blob-storage
 
 [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=rounded-square)](https://github.com/prettier/prettier)
 [![CI](https://github.com/alexbechmann/payload-plugin-azure-blob-storage/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/alexbechmann/payload-plugin-azure-blob-storage/actions/workflows/ci.yml)
 [![npm](https://img.shields.io/npm/v/payload-plugin-azure-blob-storage.svg)](https://www.npmjs.com/package/payload-plugin-azure-blob-storage)
 
-```
-_   _      _             ____
-| | | | ___| |_ __ ___   |  _ \ __ _ _ __ ___  ___ _ __
-| |_| |/ _ \ | '_ ` _ \  | |_) / _` | '__/ __|/ _ \ '__|
-|  _  |  __/ | | | | | | |  __/ (_| | |  \__ \  __/ |
-|_| |_|\___|_|_| |_| |_| |_|   \__,_|_|  |___/\___|_|
-```
-
-Template a helm chart with the Helm CLI and load the manifests into an array of JavaScript objects. Mainly intended for use within a test suite.
-
-Helm charts can get very complicated at scale, with an infinite combination of values that can be passed to the chart by consumers. With Helm Parser, you can write comprehensive tests for your chart, using your favourite JS testing framework.
-
-## Features
-
-- [x] Loads the chart's manifests into an array of JavaScript objects
-- [x] Typed manifests
-- [x] You can provide a type your values (or autogenerate one from a JSON schema)
-- [x] Helper functions to easily pick out a specific manifest
-- [x] Usage with any JS test framework
+Azure blob storage plugin for Payload CMS <https://payloadcms.com/>
 
 ## Prerequisites
 
-- Helm CLI installed on system
+- A Payload CMS project
 
 ## Installation
 
@@ -36,88 +18,169 @@ npm install payload-plugin-azure-blob-storage
 
 ## Usage
 
-```ts
-import path from "path";
-import { HelmParser } from "payload-plugin-azure-blob-storage";
+### Optionally run blob storage emulator with docker-compose
 
-const helmParser = new HelmParser({
-  chartPath: path.resolve(__dirname, "./path-to/my-chart-dir");
-});
+```yaml
+version: "3"
 
-const result = helmParser.template({
-  chartPath,
-  namespace: "my-namespace",
-  releaseName: "my-release",
-  values: {
-    replicaCount: 3,
-  },
-});
+services:
+  azure-storage:
+    image: mcr.microsoft.com/azure-storage/azurite:3.18.0
+    restart: always
+    command: "azurite --loose --blobHost 0.0.0.0 --tableHost 0.0.0.0 --queueHost 0.0.0.0"
+    ports:
+      - "10000:10000"
+      - "10001:10001"
+      - "10002:10002"
+    volumes:
+      - azurestoragedata:/data"
 
-const deployments = result.manifests.filter((manifest) => manifest.kind === "Deployment");
+  # Uncomment to use mongo in docker for payload database
+  # Connection string is: mongodb://localhost:27017/mydb
+  # mongo:
+  #   image: mongo
+  #   ports:
+  #     - "27017:27017"
+  #   volumes:
+  #     - mongodata:/data/db
+
+  # mongoexpress:
+  #   image: mongo-express
+  #   ports:
+  #     - "8081:8081"
+  #   restart: always
+  #   environment:
+  #     - ME_CONFIG_MONGODB_ENABLE_ADMIN=true
+  #     - ME_CONFIG_MONGODB_URL=mongodb://mongo:27017
+  #   links:
+  #     - mongo
+
+volumes:
+  azurestoragedata:
+  mongodata:
 ```
 
-## Helper functions
-
-```ts
-const deployments = result.getDeployments();
-const myDeployment = result.getDeployment("my-deployment");
-
-const services = result.getServices();
-const myService = result.getService("my-service");
-
-const ingresses = result.getIngresses();
-const myIngress = result.getIngress("my-ingress");
-```
-
-## Usage for testing
-
-### Optionally add a JSON Schema to your chart
-
-You should place this alongside your `Chart.yaml` file.
-
-This is a helm feature which will validate parameters, as well as allow you to generate a typescript definition for your values.
-
-<https://helm.sh/docs/topics/charts/#schema-files>
-
-`values.schema.json`
-
-```json
-{
-  "$schema": "http://json-schema.org/draft-04/schema#",
-  "type": "object",
-  "additionalProperties": true,
-  "properties": {
-    "replicaCount": {
-      "type": "number"
-    },
-    "something": {
-      "type": "string",
-      "enum": ["a", "b", "c"]
-    }
-  }
-}
-```
-
-### Bootstrap project
+### Set environment variables for Azure Blob Storage
 
 ```bash
-npx create-helm-tests my-tests --chart-path ./path-to/my-chart-dir
+AZURE_STORAGE_CONNECTION_STRING=DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://azure-storage:10000/devstoreaccount1;QueueEndpoint=http://azure-storage:10001/devstoreaccount1;
+PAYLOAD_PUBLIC_AZURE_STORAGE_CONTAINER_NAME=az-media
+AZURE_STORAGE_ALLOW_CONTAINER_CREATE=true
+PAYLOAD_PUBLIC_AZURE_STORAGE_ACCOUNT_BASEURL=http://localhost:10000/devstoreaccount1
+PAYLOAD_PUBLIC_SERVER_URL=http://localhost:5000
 ```
 
-### Write tests
+### Create options file for azure blob storage config
 
-`test/main.test.ts`
+```typescript
+import { azureStoragePluginOptionsType } from "payload-plugin-azure-blob-storage";
+
+export const azureStoragePluginOptions: azureStoragePluginOptionsType = {
+  connectionString: process.env.AZURE_STORAGE_CONNECTION_STRING,
+  containerName: process.env.PAYLOAD_PUBLIC_AZURE_STORAGE_CONTAINER_NAME,
+  baseUrl: process.env.PAYLOAD_PUBLIC_AZURE_STORAGE_ACCOUNT_BASEURL,
+  allowContainerCreate: process.env.AZURE_STORAGE_ALLOW_CONTAINER_CREATE === "true",
+};
+```
+
+### Create Media collection
+
+File: `src/collections/Media.ts`
+
+```typescript
+import { FileSizes } from "payload/dist/uploads/types";
+import { CollectionConfig } from "payload/types";
+import { createUploadMediaHooks } from "payload-plugin-azure-blob-storage";
+import { azureStoragePluginOptions } from "../azure-blob-storage-options"; // path to your options file
+
+const hooks = createUploadMediaHooks(azureStoragePluginOptions);
+
+export const Media: CollectionConfig = {
+  slug: "az-media",
+  admin: {
+    useAsTitle: "name",
+    description: "test",
+  },
+  labels: {
+    singular: "Media",
+    plural: "Media",
+  },
+  access: {
+    read: () => true,
+  },
+  hooks,
+  upload: {
+    adminThumbnail: (args) => {
+      const doc = args.doc as Record<string, FileSizes>;
+      const sizes: FileSizes = doc.sizes;
+      const squareCrop = sizes.square;
+      const { baseUrl, containerName } = azureStoragePluginOptions;
+      const url = `${baseUrl}/${containerName}/${squareCrop.filename}`;
+      return url;
+    },
+    disableLocalStorage: true,
+    staticURL: "/az-media",
+    imageSizes: [
+      {
+        height: 400,
+        width: 400,
+        crop: "center",
+        name: "square",
+      },
+      {
+        height: 900,
+        width: 450,
+        crop: "center",
+        name: "sixteenByNineMedium",
+      },
+    ],
+  },
+  fields: [
+    {
+      name: "name",
+      type: "text",
+    },
+    {
+      name: "alt",
+      type: "text",
+    },
+  ],
+};
+```
+
+### In your `payload.config.ts` file
 
 ```ts
-test("can set replicas to 3", () => {
-  const result = helmParser.template({
-    namespace: "my-namespace",
-    releaseName: "my-release",
-    values: {
-      replicaCount: 3,
-    },
-  });
-  const deployment = result.getDeployment("my-deployment");
-  expect(deployment.spec.replicas).to.equal(3);
+import { buildConfig } from "payload/config";
+import path from "path";
+import Users from "./collections/Users";
+import { createAzureBlobStorageMediaPlugin } from "payload-plugin-azure-blob-storage";
+import { azureStoragePluginOptions } from "./azure-blob-storage-options";
+import { Media } from "./collections/Media";
+
+export default buildConfig({
+  serverURL: "http://localhost:3000",
+  admin: {
+    user: Users.slug,
+  },
+  collections: [Users, Media],
+  typescript: {
+    outputFile: path.resolve(__dirname, "payload-types.ts"),
+  },
+  localization: {
+    defaultLocale: "en",
+    locales: ["en", "da"],
+  },
+  plugins: [createAzureBlobStorageMediaPlugin(azureStoragePluginOptions)],
 });
+```
+
+### In server file `src/server.ts`
+
+Add middleware for each collection that uses azure blob storage to redirect requests to the azure blob storage file location
+
+```ts
+import { azureStoragePluginOptions } from "./azure-blob-storage-options";
+
+app.use(...createLocalMediaRedirectMiddleware(Media, azureStoragePluginOptions));
 ```

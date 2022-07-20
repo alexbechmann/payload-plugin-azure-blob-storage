@@ -1,4 +1,4 @@
-export interface AzureBlobStorageMediaPluginOptionsType {
+export interface azureStoragePluginOptionsType {
   allowContainerCreate?: boolean;
   baseUrl: string;
   connectionString: string;
