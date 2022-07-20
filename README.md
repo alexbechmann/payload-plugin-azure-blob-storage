@@ -4,7 +4,9 @@
 [![CI](https://github.com/alexbechmann/payload-plugin-azure-blob-storage/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/alexbechmann/payload-plugin-azure-blob-storage/actions/workflows/ci.yml)
 [![npm](https://img.shields.io/npm/v/payload-plugin-azure-blob-storage.svg)](https://www.npmjs.com/package/payload-plugin-azure-blob-storage)
 
-Azure blob storage plugin for Payload CMS <https://payloadcms.com/>
+Azure blob storage plugin for Payload CMS <https://payloadcms.com/>.
+
+Store uploads for a payload collection in Azure blob storage.
 
 ## Prerequisites
 
@@ -136,8 +138,6 @@ Update file: `payload.config.ts`
 
 ```ts
 import { buildConfig } from "payload/config";
-import path from "path";
-import { createAzureBlobStorageMediaPlugin } from "payload-plugin-azure-blob-storage";
 import { Media } from "./collections/Media";
 
 export default buildConfig({
