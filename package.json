@@ -6,13 +6,11 @@
     "test"
   ],
   "scripts": {
-    "postinstall1": "lerna bootstrap",
-    "build": "lerna run build --stream",
-    "test": "lerna run test --stream",
-    "dev": "lerna run dev --stream"
+    "build": "npm run build --workspaces",
+    "test": "npm run test --workspaces",
+    "dev": "npm run dev --workspaces"
   },
   "devDependencies": {
-    "lerna": "^4.0.0",
     "prettier": "^2.6.2"
   }
 }
