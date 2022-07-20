@@ -38,10 +38,6 @@ jobs:
       - name: Build
         run: npm run build
         working-directory: ./packages/payload-plugin-azure-blob-storage
-
-      - name: Test install
-        run: npm install
-        working-directory: ./test
 #   publish:
 #     name: Publish package
 #     runs-on: ubuntu-latest
