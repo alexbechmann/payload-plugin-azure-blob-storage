@@ -4,12 +4,22 @@ import { AzureStoragePluginOptionsType } from "./azure-blob-storage-media-plugin
 import { BlobServiceClient } from "@azure/storage-blob";
 import chalk from "chalk";
 import { getIncomingFiles } from "./get-incoming-files";
-import { AfterDeleteHook } from "payload/dist/collections/config/types";
+import { AfterDeleteHook, AfterReadHook } from "payload/dist/collections/config/types";
 import { FileData } from "payload/dist/uploads/types";
 
-export function createUploadMediaHooks(options: AzureStoragePluginOptionsType): CollectionConfig["hooks"] {
+export function createUploadMediaHooks(): CollectionConfig["hooks"] {
+  const afterRead: AfterReadHook[] = [
+    ({ doc }) => {
+      const options = global["PAYLOAD_AZURE_CONFIG"] as AzureStoragePluginOptionsType;
+      doc.url = `${options.baseUrl}/${options.containerName}/${doc.filename}`;
+      Object.keys(doc.sizes).forEach((k) => {
+        doc.sizes[k].url = `${options.baseUrl}/${options.containerName}/${doc.sizes[k].filename}`;
+      });
+    },
+  ];
   const beforeChange: BeforeChangeHook[] = [
     async ({ data, req, originalDoc }) => {
+      const options = global["PAYLOAD_AZURE_CONFIG"] as AzureStoragePluginOptionsType;
       const { hasFile, files } = getIncomingFiles({ data, req });
       if (hasFile) {
         const blobServiceClient = BlobServiceClient.fromConnectionString(options.connectionString);
@@ -31,6 +41,7 @@ export function createUploadMediaHooks(options: AzureStoragePluginOptionsType): 
   ];
   const afterDelete: AfterDeleteHook[] = [
     async ({ req: _req, id: _id, doc }) => {
+      const options = global["PAYLOAD_AZURE_CONFIG"] as AzureStoragePluginOptionsType;
       const fileData = doc as FileData;
       const blobServiceClient = BlobServiceClient.fromConnectionString(options.connectionString);
       const containerClient = blobServiceClient.getContainerClient(options.containerName);
@@ -55,5 +66,6 @@ export function createUploadMediaHooks(options: AzureStoragePluginOptionsType): 
   return {
     beforeChange,
     afterDelete,
+    afterRead,
   };
 }

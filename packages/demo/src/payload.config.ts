@@ -3,7 +3,6 @@ import path from "path";
 import Examples from "./collections/Examples";
 import Users from "./collections/Users";
 import { createAzureBlobStorageMediaPlugin } from "payload-plugin-azure-blob-storage";
-import { azureStoragePluginOptions } from "./azure-blob-storage-options";
 import { Media } from "./collections/Media";
 
 export default buildConfig({
@@ -19,5 +18,12 @@ export default buildConfig({
     defaultLocale: "en",
     locales: ["en", "da"],
   },
-  plugins: [createAzureBlobStorageMediaPlugin(azureStoragePluginOptions)],
+  plugins: [
+    createAzureBlobStorageMediaPlugin({
+      connectionString: process.env.AZURE_STORAGE_CONNECTION_STRING,
+      containerName: process.env.PAYLOAD_PUBLIC_AZURE_STORAGE_CONTAINER_NAME,
+      baseUrl: process.env.PAYLOAD_PUBLIC_AZURE_STORAGE_ACCOUNT_BASEURL,
+      allowContainerCreate: process.env.AZURE_STORAGE_ALLOW_CONTAINER_CREATE === "true",
+    }),
+  ],
 });
