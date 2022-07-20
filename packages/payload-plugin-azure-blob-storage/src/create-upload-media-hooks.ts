@@ -4,10 +4,22 @@ import { AzureStoragePluginOptionsType } from "./azure-blob-storage-media-plugin
 import { BlobServiceClient } from "@azure/storage-blob";
 import chalk from "chalk";
 import { getIncomingFiles } from "./get-incoming-files";
-import { AfterDeleteHook } from "payload/dist/collections/config/types";
+import { AfterDeleteHook, AfterReadHook } from "payload/dist/collections/config/types";
 import { FileData } from "payload/dist/uploads/types";
+import { ensureBlobContainerExists } from "./ensure-blob-container-exists";
 
 export function createUploadMediaHooks(options: AzureStoragePluginOptionsType): CollectionConfig["hooks"] {
+  if (options.allowContainerCreate) {
+    ensureBlobContainerExists(options);
+  }
+  const afterRead: AfterReadHook[] = [
+    ({ doc }) => {
+      doc.url = `${options.baseUrl}/${options.containerName}/${doc.filename}`;
+      Object.keys(doc.sizes).forEach((k) => {
+        doc.sizes[k].url = `${options.baseUrl}/${options.containerName}/${doc.sizes[k].filename}`;
+      });
+    },
+  ];
   const beforeChange: BeforeChangeHook[] = [
     async ({ data, req, originalDoc }) => {
       const { hasFile, files } = getIncomingFiles({ data, req });
@@ -55,5 +67,6 @@ export function createUploadMediaHooks(options: AzureStoragePluginOptionsType): 
   return {
     beforeChange,
     afterDelete,
+    afterRead,
   };
 }

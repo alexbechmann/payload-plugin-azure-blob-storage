@@ -1,8 +1,5 @@
 import express from "express";
 import payload from "payload";
-import { createLocalMediaRedirectMiddleware } from "payload-plugin-azure-blob-storage";
-import { azureStoragePluginOptions } from "./azure-blob-storage-options";
-import { Media } from "./collections/Media";
 
 const app = express();
 
@@ -10,8 +7,6 @@ const app = express();
 app.get("/", (_, res) => {
   res.redirect("/admin");
 });
-
-app.use(...createLocalMediaRedirectMiddleware(Media, azureStoragePluginOptions));
 
 // Initialize Payload
 payload.init({
