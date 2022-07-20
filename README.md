@@ -67,7 +67,7 @@ AZURE_STORAGE_CONNECTION_STRING=DefaultEndpointsProtocol=http;AccountName=devsto
 AZURE_STORAGE_CONTAINER_NAME=az-media
 AZURE_STORAGE_ALLOW_CONTAINER_CREATE=true
 AZURE_STORAGE_ACCOUNT_BASEURL=http://localhost:10000/devstoreaccount1
-PAYLOAD_PUBLIC_SERVER_URL=http://localhost:5000
+# Rest of your environment variables
 ```
 
 ### Create Media collection
