@@ -9,7 +9,6 @@ export const createLocalMediaRedirectMiddleware: (
   `/${collectionConfig.slug}/*`,
   (req: express.Request, res: express.Response) => {
     const fileName = req.baseUrl.split("/")[2];
-    console.log(req.baseUrl, req.url, req.route, `/${collectionConfig.slug}/*`);
     res.redirect(`${options.baseUrl}/${options.containerName}/${fileName}`);
   },
 ];
