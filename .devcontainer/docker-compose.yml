@@ -18,9 +18,9 @@ services:
       - commandhistory:/commandhistory
       - npm-cache:/root/.npm
       - "~/.ssh:/root/.ssh"
-      - "rootnm:/workspace/node_modules"
-      - "pluginnm:/workspace/packages/payload-plugin-azure-blob-storage/node_modules"
-      - "demonm:/workspace/packages/demo/node_modules"
+      - "rootnodemodules:/workspace/node_modules"
+      - "pluginnodemodules:/workspace/packages/payload-plugin-azure-blob-storage/node_modules"
+      - "demonodemodules:/workspace/packages/demo/node_modules"
 
     # Overrides default command so things don't shut down after the process ends.
     # entrypoint: /usr/local/share/docker-init.sh
@@ -69,6 +69,6 @@ volumes:
   npm-cache:
   blobstoragedata:
   mongodata:
-  rootnm:
-  demonm:
-  pluginnm:
+  rootnodemodules:
+  demonodemodules:
+  pluginnodemodules:

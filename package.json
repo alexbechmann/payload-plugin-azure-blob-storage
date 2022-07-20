@@ -1,8 +1,11 @@
 {
   "name": "root",
   "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
-    "postinstall": "lerna bootstrap",
+    "postinstall1": "lerna bootstrap",
     "build": "lerna run build --stream",
     "test": "lerna run test --stream",
     "dev": "lerna run dev --stream"

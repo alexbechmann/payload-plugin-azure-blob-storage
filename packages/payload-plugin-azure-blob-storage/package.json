@@ -2,7 +2,8 @@
   "name": "payload-plugin-azure-blob-storage",
   "version": "0.1.0",
   "description": "",
-  "main": "index.js",
+  "main": "src/index.ts",
+  "typings": "src/index.ts",
   "scripts": {
     "build": "pika build"
   },

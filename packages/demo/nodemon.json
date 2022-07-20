@@ -1,4 +1,6 @@
 {
+  "$schema": "https://raw.githubusercontent.com/SchemaStore/schemastore/master/src/schemas/json/nodemon.json",
   "ext": "ts",
-  "exec": "ts-node src/server.ts"
+  "exec": "exec node -r ./register.js src/server.ts",
+  "watch": ["src/**/*.ts", "../payload-plugin-azure-blob-storage/**/*.ts"]
 }
