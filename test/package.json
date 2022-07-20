@@ -5,8 +5,7 @@
   "description": "",
   "scripts": {
     "test": "vitest",
-    "coverage": "vitest run --coverage",
-    "generate-types": "json2ts ./charts/my-chart/values.schema.json > ./test/values-schema.d.ts"
+    "coverage": "vitest run --coverage"
   },
   "author": "Alex",
   "license": "ISC",
