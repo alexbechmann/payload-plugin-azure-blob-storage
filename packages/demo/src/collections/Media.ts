@@ -1,7 +1,12 @@
 import { CollectionConfig } from "payload/types";
 import { createUploadMediaHooks } from "payload-plugin-azure-blob-storage";
 
-const hooks = createUploadMediaHooks();
+const hooks = createUploadMediaHooks({
+  connectionString: process.env.AZURE_STORAGE_CONNECTION_STRING,
+  containerName: process.env.AZURE_STORAGE_CONTAINER_NAME,
+  baseUrl: process.env.AZURE_STORAGE_ACCOUNT_BASEURL,
+  allowContainerCreate: process.env.AZURE_STORAGE_ALLOW_CONTAINER_CREATE === "true",
+});
 
 export const Media: CollectionConfig = {
   slug: "az-media",

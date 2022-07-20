@@ -78,7 +78,12 @@ Create file: `src/collections/Media.ts`
 import { CollectionConfig } from "payload/types";
 import { createUploadMediaHooks } from "payload-plugin-azure-blob-storage";
 
-const hooks = createUploadMediaHooks();
+const hooks = createUploadMediaHooks({
+  connectionString: process.env.AZURE_STORAGE_CONNECTION_STRING,
+  containerName: process.env.AZURE_STORAGE_CONTAINER_NAME,
+  baseUrl: process.env.AZURE_STORAGE_ACCOUNT_BASEURL,
+  allowContainerCreate: process.env.AZURE_STORAGE_ALLOW_CONTAINER_CREATE === "true",
+});
 
 export const Media: CollectionConfig = {
   slug: "az-media",
@@ -125,7 +130,7 @@ export const Media: CollectionConfig = {
 };
 ```
 
-### Update payload config
+### Add collection to payload config
 
 Update file: `payload.config.ts`
 
@@ -139,14 +144,6 @@ export default buildConfig({
   collections: [
     // Rest of your collections
     Media,
-  ],
-  plugins: [
-    createAzureBlobStorageMediaPlugin({
-      connectionString: process.env.AZURE_STORAGE_CONNECTION_STRING,
-      containerName: process.env.AZURE_STORAGE_CONTAINER_NAME,
-      baseUrl: process.env.AZURE_STORAGE_ACCOUNT_BASEURL,
-      allowContainerCreate: process.env.AZURE_STORAGE_ALLOW_CONTAINER_CREATE === "true",
-    }),
   ],
   // ... Rest of your config
 });
