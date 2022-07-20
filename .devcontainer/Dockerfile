@@ -27,6 +27,12 @@ RUN apt-get update \
   # Clean up
   && apt-get autoremove -y && apt-get clean -y && rm -rf /var/lib/apt/lists/* /tmp/library-scripts/
 
+RUN SNIPPET="export PROMPT_COMMAND='history -a' && export HISTFILE=/commandhistory/.bash_history" \
+  && mkdir /commandhistory \
+  && touch /commandhistory/.bash_history \
+  && chown -R vscode /commandhistory \
+  && echo $SNIPPET >> "/home/vscode/.bashrc"
+
 # Install NodeJS
 RUN apt-get update
 RUN apt-get -y install curl gnupg

@@ -1,10 +1,9 @@
 import { FileSizes } from "payload/dist/uploads/types";
 import { CollectionConfig } from "payload/types";
-import { createUploadMediaHooks, hi } from "payload-plugin-azure-blob-storage";
+import { createUploadMediaHooks } from "payload-plugin-azure-blob-storage";
 import { azureBlobStorageMediaPluginOptions } from "../azure-blob-storage-options";
 
-// const hooks = createUploadMediaHooks(azureBlobStorageMediaPluginOptions);
-hi();
+const hooks = createUploadMediaHooks(azureBlobStorageMediaPluginOptions);
 
 export const Media: CollectionConfig = {
   slug: "az-media",
@@ -19,13 +18,15 @@ export const Media: CollectionConfig = {
   access: {
     read: () => true,
   },
-  //   hooks,
+  hooks,
   upload: {
     adminThumbnail: (args) => {
       const doc = args.doc as Record<string, FileSizes>;
       const sizes: FileSizes = doc.sizes;
       const squareCrop = sizes.square;
-      return `/az-media/${squareCrop?.filename}`;
+      const { baseUrl, containerName } = azureBlobStorageMediaPluginOptions;
+      const url = `${baseUrl}/${containerName}/${squareCrop.filename}`;
+      return url;
     },
     disableLocalStorage: true,
     staticURL: "/az-media",
