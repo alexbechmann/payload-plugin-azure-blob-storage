@@ -1,9 +1,9 @@
 import { FileSizes } from "payload/dist/uploads/types";
 import { CollectionConfig } from "payload/types";
-import { azureStoragePluginOptionsType } from "./azure-blob-storage-media-plugin-options";
+import { AzureStoragePluginOptionsType } from "./azure-blob-storage-media-plugin-options";
 import { createUploadMediaHooks } from "./create-upload-media-hooks";
 
-export function createBlobMediaCollection(options: azureStoragePluginOptionsType) {
+export function createBlobMediaCollection(options: AzureStoragePluginOptionsType) {
   const hooks = createUploadMediaHooks(options);
   const blobMediaCollection: CollectionConfig = {
     slug: "az-media",

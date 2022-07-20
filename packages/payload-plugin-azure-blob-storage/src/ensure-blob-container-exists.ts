@@ -1,8 +1,8 @@
 import { BlobServiceClient } from "@azure/storage-blob";
-import { azureStoragePluginOptionsType } from "./azure-blob-storage-media-plugin-options";
+import { AzureStoragePluginOptionsType } from "./azure-blob-storage-media-plugin-options";
 import chalk from "chalk";
 
-export async function ensureBlobContainerExists(options: azureStoragePluginOptionsType) {
+export async function ensureBlobContainerExists(options: AzureStoragePluginOptionsType) {
   const blobServiceClient = BlobServiceClient.fromConnectionString(options.connectionString);
   const containerClient = blobServiceClient.getContainerClient(options.containerName);
   const createContainerResponse = await containerClient.createIfNotExists({ access: "blob" });

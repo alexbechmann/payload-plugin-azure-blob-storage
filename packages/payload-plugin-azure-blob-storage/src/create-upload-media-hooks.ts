@@ -1,13 +1,13 @@
 import { BeforeChangeHook } from "payload/dist/globals/config/types";
 import { CollectionConfig } from "payload/types";
-import { azureStoragePluginOptionsType } from "./azure-blob-storage-media-plugin-options";
+import { AzureStoragePluginOptionsType } from "./azure-blob-storage-media-plugin-options";
 import { BlobServiceClient } from "@azure/storage-blob";
 import chalk from "chalk";
 import { getIncomingFiles } from "./get-incoming-files";
 import { AfterDeleteHook } from "payload/dist/collections/config/types";
 import { FileData } from "payload/dist/uploads/types";
 
-export function createUploadMediaHooks(options: azureStoragePluginOptionsType): CollectionConfig["hooks"] {
+export function createUploadMediaHooks(options: AzureStoragePluginOptionsType): CollectionConfig["hooks"] {
   const beforeChange: BeforeChangeHook[] = [
     async ({ data, req, originalDoc }) => {
       const { hasFile, files } = getIncomingFiles({ data, req });
