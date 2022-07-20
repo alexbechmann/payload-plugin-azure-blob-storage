@@ -2,7 +2,8 @@
   "name": "root",
   "private": true,
   "workspaces": [
-    "packages/*"
+    "packages/*",
+    "test"
   ],
   "scripts": {
     "postinstall1": "lerna bootstrap",

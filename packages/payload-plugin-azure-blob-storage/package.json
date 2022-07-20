@@ -21,7 +21,7 @@
   "author": "Alex Bechmann",
   "repository": {
     "type": "git",
-    "url": "https://github.com/alexbechmann/helm-parser"
+    "url": "https://github.com/alexbechmann/payload-plugin-azure-blob-storage"
   },
   "license": "ISC",
   "dependencies": {

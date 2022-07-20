@@ -1,8 +1,8 @@
 # Helm Parser
 
 [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=rounded-square)](https://github.com/prettier/prettier)
-[![CI](https://github.com/alexbechmann/helm-parser/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/alexbechmann/helm-parser/actions/workflows/ci.yml)
-[![npm](https://img.shields.io/npm/v/helm-parser.svg)](https://www.npmjs.com/package/helm-parser)
+[![CI](https://github.com/alexbechmann/payload-plugin-azure-blob-storage/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/alexbechmann/payload-plugin-azure-blob-storage/actions/workflows/ci.yml)
+[![npm](https://img.shields.io/npm/v/payload-plugin-azure-blob-storage.svg)](https://www.npmjs.com/package/payload-plugin-azure-blob-storage)
 
 ```
 _   _      _             ____
@@ -31,14 +31,14 @@ Helm charts can get very complicated at scale, with an infinite combination of v
 ## Installation
 
 ```bash
-npm install helm-parser
+npm install payload-plugin-azure-blob-storage
 ```
 
 ## Usage
 
 ```ts
 import path from "path";
-import { HelmParser } from "helm-parser";
+import { HelmParser } from "payload-plugin-azure-blob-storage";
 
 const helmParser = new HelmParser({
   chartPath: path.resolve(__dirname, "./path-to/my-chart-dir");
