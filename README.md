@@ -70,7 +70,9 @@ PAYLOAD_PUBLIC_AZURE_STORAGE_ACCOUNT_BASEURL=http://localhost:10000/devstoreacco
 PAYLOAD_PUBLIC_SERVER_URL=http://localhost:5000
 ```
 
-### Create options file for azure blob storage config
+### Plugin config
+
+Create file `src/azure-blob-storage-options.ts`
 
 ```typescript
 import { AzureStoragePluginOptionsType } from "payload-plugin-azure-blob-storage";
@@ -85,7 +87,7 @@ export const azureStoragePluginOptions: AzureStoragePluginOptionsType = {
 
 ### Create Media collection
 
-File: `src/collections/Media.ts`
+Create file: `src/collections/Media.ts`
 
 ```typescript
 import { FileSizes } from "payload/dist/uploads/types";
@@ -148,7 +150,9 @@ export const Media: CollectionConfig = {
 };
 ```
 
-### In your `payload.config.ts` file
+### Update payload config
+
+Update file: `payload.config.ts`
 
 ```ts
 import { buildConfig } from "payload/config";
@@ -175,12 +179,15 @@ export default buildConfig({
 });
 ```
 
-### In server file `src/server.ts`
+### Add middleware
 
 Add middleware for each collection that uses azure blob storage to redirect requests to the azure blob storage file location
 
+Update file: `src/server.ts`
+
 ```ts
-import { azureStoragePluginOptions } from "./azure-blob-storage-options";
+import { Media } from "./collections/Media"; // path to your collection file
+import { azureStoragePluginOptions } from "./azure-blob-storage-options"; // path to your options file
 
 app.use(...createLocalMediaRedirectMiddleware(Media, azureStoragePluginOptions));
 ```
